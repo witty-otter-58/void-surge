@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Void Surge — arena survival shooter</title>
+<style>
+  :root { --cyan:#39e6ff; --mag:#ff4fd8; --amber:#ffb347; --bg:#05060f; --panel:#0d1024; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: #dfe6ff; font-family: "Segoe UI", system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  header { width: 960px; max-width: 96vw; display: flex; justify-content: space-between; align-items: baseline; padding: 14px 4px 8px; }
+  h1 { font-size: 22px; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; }
+  h1 b { color: var(--mag); }
+  .sub { font-size: 12px; color: #8b93b8; }
+  #wrap { position: relative; width: 960px; max-width: 96vw; }
+  canvas { display: block; width: 100%; background: #070818; border: 1px solid #232a4d; border-radius: 8px; }
+  #hud { display: flex; gap: 10px; width: 960px; max-width: 96vw; padding: 8px 4px; font-size: 13px; flex-wrap: wrap; }
+  .pill { background: var(--panel); border: 1px solid #232a4d; border-radius: 20px; padding: 4px 12px; }
+  .pill b { color: var(--cyan); }
+  #hullbar { width: 140px; height: 10px; background: #1a1f3d; border-radius: 5px; overflow: hidden; display: inline-block; vertical-align: middle; }
+  #hullfill { height: 100%; width: 100%; background: linear-gradient(90deg, #39e6ff, #ff4fd8); }
+  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(4,5,16,.82); border-radius: 8px; text-align: center; padding: 20px; }
+  .overlay.show { display: flex; }
+  .overlay h2 { font-size: 34px; letter-spacing: 3px; color: var(--cyan); text-transform: uppercase; }
+  .overlay h2.mag { color: var(--mag); }
+  .overlay p { max-width: 560px; color: #b9c1e6; font-size: 14px; line-height: 1.6; }
+  .overlay .big { font-size: 20px; color: #fff; }
+  .keys { font-size: 12px; color: #8b93b8; line-height: 1.8; }
+  .keys kbd { background: #1a1f3d; border: 1px solid #333c66; border-radius: 4px; padding: 1px 6px; color: #dfe6ff; font-family: inherit; }
+  button { background: var(--cyan); color: #04121a; border: none; border-radius: 6px; padding: 10px 26px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
+  button:hover { background: #7df0ff; }
+  button.ghost { background: transparent; color: var(--cyan); border: 1px solid var(--cyan); }
+  #cards { display: flex; gap: 12px; }
+  .card { width: 170px; background: var(--panel); border: 1px solid var(--cyan); border-radius: 8px; padding: 14px; cursor: pointer; text-align: left; }
+  .card:hover { border-color: var(--mag); transform: translateY(-2px); }
+  .card h3 { font-size: 15px; color: var(--cyan); margin-bottom: 6px; }
+  .card p { font-size: 12px; color: #b9c1e6; line-height: 1.5; }
+  .card .key { display: inline-block; margin-top: 8px; background: #1a1f3d; border-radius: 4px; padding: 2px 8px; font-size: 12px; color: var(--amber); }
+  footer { width: 960px; max-width: 96vw; padding: 8px 4px 20px; font-size: 12px; color: #6b7398; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Void <b>Surge</b></h1>
+  <div class="sub">arena survival shooter &middot; 10 waves &middot; hold the line</div>
+</header>
+<div id="wrap">
+  <canvas id="game" width="960" height="600"></canvas>
+  <div class="overlay show" id="ov-title">
+    <h2>Void <span style="color:var(--mag)">Surge</span></h2>
+    <p class="big">The swarm is coming through the rift. Survive all 10 waves.</p>
+    <p>Move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows, aim with the mouse, hold click or <kbd>Space</kbd> to fire. Grab pickups, and pick an upgrade after every cleared wave. Bosses arrive on waves 5 and 10.</p>
+    <button id="btn-start">Launch</button>
+    <div class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> choose upgrade &nbsp; <kbd>P</kbd> pause &nbsp; <kbd>M</kbd> mute &nbsp; <kbd>R</kbd> restart</div>
+  </div>
+  <div class="overlay" id="ov-upgrade">
+    <h2>Wave cleared</h2>
+    <p class="big" id="upg-sub">Choose an upgrade</p>
+    <div id="cards"></div>
+  </div>
+  <div class="overlay" id="ov-victory">
+    <h2>Victory</h2>
+    <p class="big" id="vic-line">The rift is sealed. You survived all 10 waves.</p>
+    <p id="vic-stats"></p>
+    <button id="btn-again-v">Play again</button>
+  </div>
+  <div class="overlay" id="ov-defeat">
+    <h2 class="mag">Ship destroyed</h2>
+    <p class="big" id="def-line">The swarm overran your ship.</p>
+    <p id="def-stats"></p>
+    <button id="btn-again-d">Try again</button>
+  </div>
+  <div class="overlay" id="ov-pause">
+    <h2>Paused</h2>
+    <p>Press <kbd>P</kbd> to resume.</p>
+    <button class="ghost" id="btn-resume">Resume</button>
+  </div>
+</div>
+<div id="hud">
+  <span class="pill">Hull <span id="hullbar"><span id="hullfill"></span></span> <b id="hulltxt">100</b></span>
+  <span class="pill">Wave <b id="hud-wave">0/10</b></span>
+  <span class="pill">Score <b id="hud-score">0</b></span>
+  <span class="pill">Hostiles <b id="hud-left">0</b></span>
+  <span class="pill">Weapon <b id="hud-weapon">Blaster Lv1</b></span>
+  <span class="pill">Best <b id="hud-best">—</b></span>
+</div>
+<footer>
+  <span>Void Surge &middot; a make.fun best-game-01 entry</span>
+  <span>WASD move &middot; mouse aim &middot; hold fire</span>
+</footer>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
