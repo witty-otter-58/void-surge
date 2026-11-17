@@ -1,8 +1,8 @@
 # Void Surge
 
-[![best-game-01](https://make.fun/bounty/best-game-01/badge.svg)](https://make.fun/bounty/best-game-01)
-[![best-game-01](https://make.fun/bounty/best-game-01/badge2.svg)](https://make.fun/bounty/best-game-01)
-[![best-game-01](https://make.fun/bounty/best-game-01/badge3.svg)](https://make.fun/bounty/best-game-01)
+[![make.fun · best-game-01](https://make.fun/badge/best-game-01.svg)](https://make.fun/bounty/best-game-01?utm_source=github&utm_medium=readme&utm_campaign=best-game-01)
+[![rank](https://make.fun/badge/best-game-01/witty-otter-58/void-surge/rank.svg)](https://make.fun/bounty/best-game-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=best-game-01)
+[![reward](https://make.fun/badge/best-game-01/witty-otter-58/void-surge/reward.svg)](https://make.fun/bounty/best-game-01?utm_source=github&utm_medium=readme&utm_campaign=best-game-01)
 
 Void Surge is an arena survival shooter: pilot the last interceptor through
 10 waves of void creatures pouring out of a rift. Move with WASD, aim with
